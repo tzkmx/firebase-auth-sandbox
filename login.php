@@ -229,6 +229,19 @@ $dotenv->load();
       })
     }
   })
+
+  function verifyIdToken(token) {
+    var data = new FormData()
+    data.set('idToken', token)
+    fetch('verify.php', {
+      method: 'POST',
+      body: data
+    })
+      .then(r => r.json())
+      .then(console.log)
+      .catch(console.warn)
+  }
+  window.verifyIdToken = verifyIdToken
 })(document)
 </script>
 

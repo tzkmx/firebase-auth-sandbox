@@ -23,6 +23,12 @@ $dotenv->load();
             margin-right: auto;
             text-align: center;
         }
+        .hidden-confirm {
+            background-color: aqua;
+        }
+        .hidden-confirm * {
+            border-color: red;
+        }
     </style>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://unpkg.com/@tailwindcss/custom-forms@0.2.1/dist/custom-forms.css" rel="stylesheet">
@@ -36,7 +42,26 @@ $dotenv->load();
                 <li class="tab col s3 waves-effect"><a href="#loginSection">Login</a></li>
             </ul>
             <div class="card-content bg-white">
-                <div class="flex">
+                <div class="flex flex-col">
+                    <form action="" id="authPhone" class="p-6">
+                        <fieldset class="flex flex-col">
+                            <legend>Phone</legend>
+                            <label for="phone">Enter your Phone</label>
+                            <input type="text" id="phone" class="form-input"
+                                   autocomplete="off"/>
+                            <div id="sign-in-button">hmmm</div>
+                            <button type="submit" class="button">Login Now
+                            </button>
+                        </fieldset>
+                    </form>
+                    <form action="" id="confirmCode" class="hidden-confirm">
+                        <fieldset class="flex">
+                            <label>Su código de confirmación
+                                <input type="text" id="confirm-code" class="form-input">
+                            </label>
+                            <button type="submit" class="button">Confirmar</button>
+                        </fieldset>
+                    </form>
                     <form action="" id="authRegister" class="p-6">
                         <fieldset class="flex flex-col">
                             <legend>Register</legend>
@@ -109,10 +134,17 @@ $dotenv->load();
       measurementId: "G-DM8P0LHHEJ"
     }
 
-
     // Initialize Firebase
 
     const app = firebase.initializeApp(firebaseConfig)
+    firebase.auth().useDeviceLanguage()
+
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+      'size': 'invisible',
+      'callback': function(response) {
+        onSignInSubmit()
+      }
+    })
 
     // const analytics = firebase.getAnalytics(app)
 
@@ -121,6 +153,8 @@ $dotenv->load();
 
     $('#authRegister').addEventListener('submit', authRegister)
     $('#authLogin').addEventListener('submit', authLogin)
+    $('#authPhone').addEventListener('submit', authPhone)
+    $('#confirmCode').addEventListener('submit', confirmCode)
 
     // User SignUp
     function authRegister(event) {
@@ -152,13 +186,47 @@ $dotenv->load();
         .signInWithEmailAndPassword(login_email, login_password)
         .then(function (r) {
           console.log({r})
-          this.firebaseToken.innerHTML = "Sign-in Successful !"
+          firebaseToken.innerHTML = "Sign-in Successful !"
           console.log('sign in successful !')
         })
         .catch(function (err) {
           console.warn({err})
           alert(err.message)
         })
+    }
+
+    function authPhone(event) {
+      event.preventDefault()
+      var phone = $('#phone').value
+
+      var appVerifier = window.recaptchaVerifier
+
+      firebase
+        .auth()
+        .signInWithPhoneNumber(phone, appVerifier)
+        .then((result) => {
+          console.log({ result })
+          window.confirmationResult = result
+          /** @var DocumentElement confirmCodeElem */
+          var confirmCodeElem = $('#confirmCode')
+          confirmCodeElem.classList.remove('hidden-confirm')
+        })
+        .catch(err => {
+          console.warn({ err })
+        })
+    }
+
+    function confirmCode(event) {
+      event.preventDefault()
+      var confirmationInput = $('#confirm-code').value
+      confirmationResult.confirm(confirmationInput)
+        .then((result) => {
+          console.log({ result })
+          firebaseToken.innerHTML = result.user.toString()
+        })
+      .catch(err => {
+        console.warn({ err })
+      })
     }
   })
 })(document)

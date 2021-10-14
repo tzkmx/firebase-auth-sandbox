@@ -62,6 +62,21 @@ $dotenv->load();
                             <button type="submit" class="button">Confirmar</button>
                         </fieldset>
                     </form>
+                    <form action="" id="anon" class="p-6">
+                        <fieldset class="flex flex-col">
+                            <legend>Anonymous Token</legend>
+                            <button type="submit" class="button">Get Test Token now</button>
+                        </fieldset>
+                    </form>
+                    <form action="" id="mintToken" class="p-6">
+                        <fieldset class="flex flex-col">
+                            <legend>Get Token For Phone</legend>
+                            <label for="phone">Enter your Phone</label>
+                            <input type="text" id="phone" class="form-input"
+                                   autocomplete="off"/>
+                            <button type="submit" class="button">Try Get Token</button>
+                        </fieldset>
+                    </form>
                     <form action="" id="authRegister" class="p-6">
                         <fieldset class="flex flex-col">
                             <legend>Register</legend>
@@ -154,6 +169,21 @@ $dotenv->load();
     $('#authLogin').addEventListener('submit', authLogin)
     $('#authPhone').addEventListener('submit', authPhone)
     $('#confirmCode').addEventListener('submit', confirmCode)
+    $('#anon').addEventListener('submit', anonymousTest)
+    $('#mintToken').addEventListener('submit', customToken)
+
+    function anonymousTest(event) {
+      event.preventDefault()
+      firebase.auth().signInAnonymously()
+        .then(({ user }) => {
+          window.anonUser = user
+          console.log({ anonymous: user })
+        })
+    }
+
+    function customToken(event) {
+      event.preventDefault()
+    }
 
     // User SignUp
     function authRegister(event) {
@@ -218,15 +248,39 @@ $dotenv->load();
     function confirmCode(event) {
       event.preventDefault()
       var confirmationInput = $('#confirm-code').value
-      confirmationResult.confirm(confirmationInput)
+
+      var credential = firebase.auth.PhoneAuthProvider
+        .credential(confirmationResult.verificationId, confirmationInput)
+      window.phoneCredential = credential
+
+      firebase.auth().signInWithCredential(credential)
+        .then(resultPhoneCredential => {
+          console.log({ resultPhoneCredential })
+        })
+        .catch(console.warn)
+
+      /*confirmationResult.confirm(confirmationInput)
         .then((result) => {
           console.log({ result })
           firebaseToken.innerHTML = result.user.toString()
         })
       .catch(err => {
         console.warn({ err })
-      })
+      })*/
     }
+
+    function linkAccounts(user, credential, toWin) {
+      user.linkWithCredential(credential)
+        .then(userCred => {
+          newUser = userCred.user
+          console.log('Account linked', { userCred, newUser })
+          if(toWin) {
+            window.newUser = newUser
+          }
+        })
+      .catch(console.warn)
+    }
+    window.linkAccounts = linkAccounts
   })
 
   function verifyIdToken(token) {

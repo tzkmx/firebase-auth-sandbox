@@ -1,16 +1,17 @@
 {
-    "name": "tzkmx/firebase-auth-sandbox",
-    "type": "project",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Jesus Franco Martinez",
-            "email": "jefrancomix@gmail.com"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "vlucas/phpdotenv": "5.4.x-dev",
-        "kreait/firebase-php": "5.x-dev"
+  "name": "tzkmx/firebase-auth-sandbox",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jesus Franco Martinez",
+      "email": "jefrancomix@gmail.com"
     }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "vlucas/phpdotenv": "5.4.x-dev",
+    "kreait/firebase-php": "5.x-dev",
+    "ext-http": "*"
+  }
 }
